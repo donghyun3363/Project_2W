@@ -9,6 +9,8 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+
 import java.util.List;
 
 /**
@@ -17,29 +19,28 @@ import java.util.List;
 
 public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.ContentViewHolder> {
 
+    final static int UNSELECT = 0;
+    final static int SELECT = 1;
     Context context;
     List<ContentItem> items;
     int item_layout;
-    final static int UNSELECT = 0;
-    final static int SELECT = 1;
+
 
     public RecyclerAdapter(Context context, List<ContentItem> items, int item_layout) {
         this.context = context;
         this.items = items;
         this.item_layout = item_layout;
-
-       // Log.e("CHECK_IMG", "After Adapter >>>>>>>>>>>>>>>>>>>>>> "+items.get(0).getStoreImg());
-
     }
     /*
             ViewHolder
          */
     public class ContentViewHolder extends RecyclerView.ViewHolder{
 
-        ImageView storeImage;
+
         TextView storeName;
         TextView storeContent;
         ImageButton storeCheck;
+        ImageView storeImage;
         public ContentViewHolder(View itemView) {
             super(itemView);
             storeImage = (ImageView) itemView.findViewById(R.id.storeImage);
@@ -58,9 +59,13 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Conten
     public void onBindViewHolder(ContentViewHolder holder, int position) {
         final ContentItem item = items.get(position);
 
-        holder.storeImage.setImageResource(item.getStoreImg());
+        Glide.with(context).load(item.getStoreImg()).into(holder.storeImage);
+      //  holder.storeImage.
         holder.storeName.setText(item.getStoreName());
         holder.storeContent.setText(item.getStoreContent());
+        /*
+            컨텐츠 내 버튼 선택
+         */
         if(item.getCheckbutton() == UNSELECT) {
             holder.storeCheck.setImageResource(R.drawable.ic_borderstar);
         }
@@ -85,8 +90,6 @@ public class RecyclerAdapter extends RecyclerView.Adapter<RecyclerAdapter.Conten
         });
 
     }
-
-
     @Override
     public int getItemCount() {
         return items.size();

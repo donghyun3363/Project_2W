@@ -4,6 +4,9 @@ package com.example.donghyunlee.project2w;
  * Created by DONGHYUNLEE on 2017-07-11.
  */
 
+/*
+    컨텐츠에 들어간 Item
+ */
 public class ContentItem {
 
     private int storeImg;

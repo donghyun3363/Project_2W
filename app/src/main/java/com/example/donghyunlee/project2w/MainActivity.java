@@ -1,13 +1,20 @@
 package com.example.donghyunlee.project2w;
 
+import android.content.Intent;
+import android.content.res.TypedArray;
 import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.PopupMenu;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -21,103 +28,119 @@ import butterknife.OnClick;
 public class MainActivity extends AppCompatActivity {
 
 
-    final int ITEM_SIZE = 8;
-    ContentItem[] item = new ContentItem[ITEM_SIZE];
-    List<ContentItem> items = new ArrayList<>();
-
+    final static int GRID_LAYOUT = 0;
+    final static int LIST_LAYOUT = 1;
+    int willChange_flag = 3;
+    private final int ITEM_SIZE = 8;
+    private ContentItem[] item = new ContentItem[ITEM_SIZE];
+    private List<ContentItem> items = new ArrayList<>();
+    /*
+        버터나이프
+     */
     @Bind(R.id.orderDist)
     Button distButton;
     @Bind(R.id.orderPopular)
     Button PopularButton;
     @Bind(R.id.orderRecent)
     Button recentButton;
+    @Bind(R.id.changeCard)
     ImageButton changeCard;
+    ImageButton selectMenu;
+
     RecyclerView recyclerView;
-    StaggeredGridLayoutManager mLayoutManager;
-    LinearLayoutManager mLinearLayoutManger;
     RecyclerAdapter mAdapter;
-
-    final static int GRID_LAYOUT = 0;
-    final static int LIST_LAYOUT = 1;
-    int willChange_flag = 3;
-
-    @Override
+    StaggeredGridLayoutManager mStaggeredLayoutManager;
+    LinearLayoutManager mLinearLayoutManger;
+    FragmentManager fm = getSupportFragmentManager();
+    FragmentTransaction fragmentTransaction = fm.beginTransaction();
+   // AddRegister addregister = new AddRegister();
+     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
         ButterKnife.bind(this);
+        recyclerView = (RecyclerView) findViewById(R.id.recyclerview); // 리사이클러뷰는 버터나이프가 안됨
 
         settingItem();
-        recyclerView = (RecyclerView) findViewById(R.id.recyclerview);
-        changeCard = (ImageButton) findViewById(R.id.changeCard);
 
-        mLayoutManager = new StaggeredGridLayoutManager(2,1);
-        mLayoutManager.setGapStrategy(StaggeredGridLayoutManager.GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS);
-        mLayoutManager.setOrientation(StaggeredGridLayoutManager.VERTICAL);
+        /*
+            Staggered 레이아웃매니저 setting
+         */
+        mStaggeredLayoutManager = new StaggeredGridLayoutManager(2,1);
+        mStaggeredLayoutManager.setGapStrategy(StaggeredGridLayoutManager.GAP_HANDLING_MOVE_ITEMS_BETWEEN_SPANS);
+        mStaggeredLayoutManager.setOrientation(StaggeredGridLayoutManager.VERTICAL);
 
+        /*
+            Linear 레이아웃매니저 setting
+         */
         mLinearLayoutManger = new LinearLayoutManager(getApplicationContext());
+
+        /*
+            리사이클러뷰 setting
+         */
         mAdapter = new RecyclerAdapter(this, items, R.layout.cardview);
         recyclerView.setHasFixedSize(true);
-        recyclerView.setLayoutManager(mLayoutManager);
+        recyclerView.setLayoutManager(mStaggeredLayoutManager);
         recyclerView.setAdapter(mAdapter);
         changeCard.setImageResource(R.drawable.ic_listbutton);
-
-        Collections.sort(items, new DistDescCompare());
-        mAdapter.notifyDataSetChanged();
         distButton.setTextColor(getResources().getColor(R.color.colorGreen));
 
-        changeCard.setOnClickListener(new View.OnClickListener(){
+        //    Item List sorting
+        Collections.sort(items, new DistDescCompare());
+        mAdapter.notifyDataSetChanged();
+        selectMenu = (ImageButton) findViewById(R.id.selectMenu);
+        selectMenu.setOnClickListener(new View.OnClickListener(){
             @Override
             public void onClick(View v) {
-                settingLayoutButton();
+                PopupMenu popupMenu = new PopupMenu(MainActivity.this, v);
+                popupMenu.getMenuInflater().inflate(R.menu.popup_menu, popupMenu.getMenu());
+                popupMenu.show();
+                popupMenu.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem item) {
+                        switch (item.getItemId()) {
+                            case R.id.item0:
+                                //openFragment(addregister);
+
+                                Intent intent = new Intent(MainActivity.this, AddRegisterActivity.class) ;
+                                startActivity(intent) ;
+                                return true;
+                            case R.id.item1:
+                                Toast.makeText(getApplicationContext(), "-(미정)", Toast.LENGTH_SHORT).show();
+                                return true;
+                            case R.id.item2 :
+                                Toast.makeText(getApplicationContext(), "-(미정)", Toast.LENGTH_SHORT).show();
+                                return true;
+                            case R.id.item3:
+                                Toast.makeText(getApplicationContext(), "-(미정)", Toast.LENGTH_SHORT).show();
+                                return true;
+                            case R.id.item4:
+                                Toast.makeText(getApplicationContext(), "-(미정)", Toast.LENGTH_SHORT).show();
+                                return true;
+                            default:
+                                return true;
+                        }
+                    }
+
+
+                });
             }
         });
 
     }
-
-    @OnClick(R.id.orderDist)
-    void distMethod(View v) {
-        Collections.sort(items, new DistDescCompare());
-        distButton.setTextColor(getResources().getColor(R.color.colorGreen));
-        PopularButton.setTextColor(getResources().getColor(R.color.colorBlack));
-        recentButton.setTextColor(getResources().getColor(R.color.colorBlack));
-        mAdapter.notifyDataSetChanged();
+    /* fragment
+    private void openFragment(final AddRegister fragment)   {
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        transaction.replace(R.id.add_container, fragment);
+        transaction.addToBackStack(null);
+        transaction.commit();
     }
-    @OnClick(R.id.orderPopular)
-    void popularMethod(View v) {
-        Collections.sort(items, new PopularAscCompare());
-        distButton.setTextColor(getResources().getColor(R.color.colorBlack));
-        PopularButton.setTextColor(getResources().getColor(R.color.colorGreen));
-        recentButton.setTextColor(getResources().getColor(R.color.colorBlack));
-        mAdapter.notifyDataSetChanged();
-    }
-    @OnClick(R.id.orderRecent)
-    void recentMethod(View v){
-        Collections.sort(items, new RecentAscCompare());
-        distButton.setTextColor(getResources().getColor(R.color.colorBlack));
-        PopularButton.setTextColor(getResources().getColor(R.color.colorBlack));
-        recentButton.setTextColor(getResources().getColor(R.color.colorGreen));
-        mAdapter.notifyDataSetChanged();
-    }
-    public void settingItem() {
+*/
 
-        item[0] = new ContentItem(R.drawable.img_mobidic, "모비딕", getApplicationContext().getString(R.string.item_content0), "1000개", "10개", "3", 0);
-        item[1] = new ContentItem(R.drawable.img_zerotwonine, "제로 투 나인", getApplicationContext().getString(R.string.item_content1),"900개", "11개", "2일", 0);
-        item[2] = new ContentItem(R.drawable.img_vintage, "빈티지 1988", getApplicationContext().getString(R.string.item_content2), "100개", "15개", "4일", 0);
-        item[3] = new ContentItem(R.drawable.img_italy, "이탈리", getApplicationContext().getString(R.string.item_content3), "2000개", "12개", "5일", 0);
-        item[4] = new ContentItem(R.drawable.img_magnolia, "매그놀리아", getApplicationContext().getString(R.string.item_content4), "3000개", "22개", "10일", 0);
-        item[5] = new ContentItem(R.drawable.hansot, "한솥", getApplicationContext().getString(R.string.item_content5),"1500개", "9개", "2일", 0);
-        item[6] = new ContentItem(R.drawable.img_mmth, "메머드 커피", getApplicationContext().getString(R.string.item_content6), "1300개", "9개","1일", 0);
-        item[7] = new ContentItem(R.drawable.img_shybana, "샤이바나", getApplicationContext().getString(R.string.item_content7), "1400개", "3개", "2일", 0);
-
-
-        for(int i = 0 ; i<ITEM_SIZE ; i++)
-        {
-            items.add(item[i]);
-
-        }
-    }
-    public void settingLayoutButton(){
+    @OnClick(R.id.changeCard)
+    void settingLayoutButton(){
         if(willChange_flag == GRID_LAYOUT || willChange_flag == 3){
             willChange_flag = LIST_LAYOUT;
         }
@@ -125,7 +148,7 @@ public class MainActivity extends AppCompatActivity {
             willChange_flag = GRID_LAYOUT;
         }
         if(willChange_flag == GRID_LAYOUT) {
-            recyclerView.setLayoutManager(mLayoutManager);
+            recyclerView.setLayoutManager(mStaggeredLayoutManager);
             changeCard.setImageResource(R.drawable.ic_listbutton);
         }
         else{
@@ -134,6 +157,66 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    @OnClick(R.id.orderDist)
+    void distMethod() {
+        Collections.sort(items, new DistDescCompare());
+        mAdapter.notifyDataSetChanged();
+        colorChange("distMethod");
+    }
+    @OnClick(R.id.orderPopular)
+    void popularMethod() {
+        Collections.sort(items, new PopularAscCompare());
+        mAdapter.notifyDataSetChanged();
+        colorChange("popularMethod");
+    }
+    @OnClick(R.id.orderRecent)
+    void recentMethod(){
+        Collections.sort(items, new RecentAscCompare());
+        mAdapter.notifyDataSetChanged();
+        colorChange("recentMethod");
+    }
+    /*
+       글씨 색깔 체인지
+    */
+    void colorChange(String howMethod)
+    {
+        if(howMethod == "distMethod")
+        {
+            distButton.setTextColor(getResources().getColor(R.color.colorGreen));
+            PopularButton.setTextColor(getResources().getColor(R.color.colorBlack));
+            recentButton.setTextColor(getResources().getColor(R.color.colorBlack));
+        }
+        else if(howMethod == "popularMethod"){
+            distButton.setTextColor(getResources().getColor(R.color.colorBlack));
+            PopularButton.setTextColor(getResources().getColor(R.color.colorGreen));
+            recentButton.setTextColor(getResources().getColor(R.color.colorBlack));
+        }
+        else if(howMethod == "recentMethod")
+        {
+            distButton.setTextColor(getResources().getColor(R.color.colorBlack));
+            PopularButton.setTextColor(getResources().getColor(R.color.colorBlack));
+            recentButton.setTextColor(getResources().getColor(R.color.colorGreen));
+        }
+    }
+    public void settingItem() {
+        TypedArray storeimgs = getResources().obtainTypedArray(R.array.storeimg);
+        String[] storenames = getResources().getStringArray(R.array.storename);
+        String[] storecontents = getResources().getStringArray(R.array.storecontent);
+        String[] dists = getResources().getStringArray(R.array.dist);
+        String[] populars = getResources().getStringArray(R.array.popular);
+        String[] recents = getResources().getStringArray(R.array.recent);
+        int[] checks = getResources().getIntArray(R.array.check);
+
+        for(int i = 0 ; i < ITEM_SIZE ; i++)
+        {
+            item[i] = new ContentItem(storeimgs.getResourceId(i, -1), storenames[i], storecontents[i], dists[i], populars[i], recents[i], checks[i]);
+            items.add(item[i]);
+        }
+
+    }
+    /*
+        Item List 정렬
+     */
     static class DistDescCompare implements Comparator<ContentItem> {
       @Override
         public int compare(ContentItem o1, ContentItem o2) {

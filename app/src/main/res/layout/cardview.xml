@@ -18,12 +18,12 @@
             android:layout_height="match_parent"
             android:orientation="vertical">
 
-            <ImageView
+            <com.flaviofaria.kenburnsview.KenBurnsView
                 android:id="@+id/storeImage"
                 android:layout_width="match_parent"
                 android:layout_height="200dp"
                 android:scaleType="fitXY"
-                android:src="@drawable/hansot" />
+                android:src="@drawable/hansot"  />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -48,10 +48,11 @@
 
                     <ImageButton
                         android:id="@+id/storeCheck"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        android:layout_width="@dimen/sizeStar"
+                        android:layout_height="@dimen/sizeStar"
                         android:background="@android:color/transparent"
                         android:src="@drawable/ic_borderstar"
+                        android:scaleType="fitXY"
                         android:layout_alignParentRight="true"/>
                 </RelativeLayout>
 
@@ -61,7 +62,10 @@
                     android:layout_height="wrap_content"
                     android:text="한솥도시락입니다ㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋㅋ"
                     android:textColor="@color/colorGray"
-                    android:textStyle="bold" />
+                    android:textStyle="bold"
+                    android:ellipsize="end"
+
+                    />
             </LinearLayout>
 
         </LinearLayout>
